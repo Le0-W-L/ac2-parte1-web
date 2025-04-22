@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Projetos</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #project-list {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        #project-list h2 {
+            color: #555;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        #projects {
+            list-style: none;
+            padding: 0;
+        }
+
+        #projects li {
+            padding: 10px 0;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        #projects li:last-child {
+            border-bottom: none;
+        }
+
+        #add-project-form {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #add-project-form h2 {
+            color: #555;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #777;
+            font-size: 0.9em;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="date"] {
+            width: calc(100% - 12px);
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 1em;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sistema de Controle de Projetos</h1>
+
+    <div id="project-list">
+        <h2>Projetos Cadastrados</h2>
+        <ul id="projects">
+            <li>Projeto A - Início: 2023-01-15 - Fim: 2023-06-30</li>
+            <li>Projeto B - Início: 2023-03-01 - Fim: 2024-01-31</li>
+            <li>Projeto C - Início: 2024-05-10 - Fim: 2024-12-20</li>
+        </ul>
+    </div>
+
+    <div id="add-project-form">
+        <h2>Inserir Novo Projeto</h2>
+        <form id="new-project-form">
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <input type="text" id="descricao" name="descricao" required>
+            </div>
+            <div class="form-group">
+                <label for="dataInicio">Data de Início:</label>
+                <input type="date" id="dataInicio" name="dataInicio" required>
+            </div>
+            <div class="form-group">
+                <label for="dataFim">Data de Fim:</label>
+                <input type="date" id="dataFim" name="dataFim" required>
+            </div>
+            <button type="submit">Salvar Projeto</button>
+        </form>
+    </div>
+
+    <script>
+        // Aqui você adicionaria o JavaScript para interagir com o backend
+        // para listar os projetos e enviar o formulário de novo projeto.
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const newProjectForm = document.getElementById('new-project-form');
+            const projectsList = document.getElementById('projects');
+
+            // Função simulada para adicionar um projeto à lista (será substituída por chamada à API)
+            newProjectForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const descricao = document.getElementById('descricao').value;
+                const dataInicio = document.getElementById('dataInicio').value;
+                const dataFim = document.getElementById('dataFim').value;
+
+                const newListItem = document.createElement('li');
+                newListItem.textContent = `${descricao} - Início: ${dataInicio} - Fim: ${dataFim}`;
+                projectsList.appendChild(newListItem);
+
+                // Limpar o formulário após a "submissão"
+                newProjectForm.reset();
+            });
+
+            // No cenário real, aqui você faria uma chamada GET para sua API
+            // para obter a lista de projetos e popular a lista 'projects'.
+            // Exemplo simulado:
+            // fetch('/api/projetos')
+            //   .then(response => response.json())
+            //   .then(data => {
+            //     data.forEach(projeto => {
+            //       const listItem = document.createElement('li');
+            //       listItem.textContent = `${projeto.descricao} - Início: ${projeto.dataInicio} - Fim: ${projeto.dataFim}`;
+            //       projectsList.appendChild(listItem);
+            //     });
+            //   });
+        });
+    </script>
+</body>
+</html>
