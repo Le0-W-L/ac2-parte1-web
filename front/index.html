@@ -6,31 +6,38 @@
     <title>Controle de Projetos</title>
     <style>
         body {
-            font-family: sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f8f9fa;
+            color: #343a40;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 40px;
         }
 
         h1 {
-            color: #333;
+            color: #007bff;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
-        #project-list {
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin-bottom: 30px;
             background-color: #fff;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
-        #project-list h2 {
-            color: #555;
+        h2 {
+            color: #28a745;
             margin-top: 0;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
+            border-bottom: 2px solid #28a745;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         #projects {
@@ -39,60 +46,82 @@
         }
 
         #projects li {
-            padding: 10px 0;
-            border-bottom: 1px dashed #ddd;
+            padding: 15px 0;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         #projects li:last-child {
             border-bottom: none;
         }
 
-        #add-project-form {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        .project-info {
+            flex-grow: 1;
         }
 
-        #add-project-form h2 {
-            color: #555;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
+        .project-info strong {
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .project-actions button {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-left: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .project-actions button:hover {
+            background-color: #c82333;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            color: #777;
-            font-size: 0.9em;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: bold;
         }
 
         .form-group input[type="text"],
         .form-group input[type="date"] {
-            width: calc(100% - 12px);
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
+            width: calc(100% - 16px);
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
             font-size: 1em;
+            transition: border-color 0.3s ease;
         }
 
-        button {
+        .form-group input[type="text"]:focus,
+        .form-group input[type="date"]:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        button[type="submit"] {
             background-color: #007bff;
             color: #fff;
-            padding: 10px 15px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 3px;
+            border-radius: 5px;
             cursor: pointer;
             font-size: 1em;
+            transition: background-color 0.3s ease;
         }
 
-        button:hover {
+        button[type="submit"]:hover {
             background-color: #0056b3;
         }
     </style>
@@ -100,16 +129,15 @@
 <body>
     <h1>Sistema de Controle de Projetos</h1>
 
-    <div id="project-list">
+    <div class="container" id="project-list">
         <h2>Projetos Cadastrados</h2>
         <ul id="projects">
-            <li>Projeto A - Início: 2023-01-15 - Fim: 2023-06-30</li>
-            <li>Projeto B - Início: 2023-03-01 - Fim: 2024-01-31</li>
-            <li>Projeto C - Início: 2024-05-10 - Fim: 2024-12-20</li>
+            <li id="loading-projects">Carregando projetos...</li>
         </ul>
+        <p id="no-projects" style="display:none; color: #6c757d;">Nenhum projeto cadastrado ainda.</p>
     </div>
 
-    <div id="add-project-form">
+    <div class="container" id="add-project-form">
         <h2>Inserir Novo Projeto</h2>
         <form id="new-project-form">
             <div class="form-group">
@@ -129,40 +157,122 @@
     </div>
 
     <script>
-        // Aqui você adicionaria o JavaScript para interagir com o backend
-        // para listar os projetos e enviar o formulário de novo projeto.
-
         document.addEventListener('DOMContentLoaded', () => {
             const newProjectForm = document.getElementById('new-project-form');
             const projectsList = document.getElementById('projects');
+            const noProjectsMessage = document.getElementById('no-projects');
+            const loadingProjects = document.getElementById('loading-projects');
 
-            // Função simulada para adicionar um projeto à lista (será substituída por chamada à API)
+            // Função para renderizar a lista de projetos
+            function renderProjects(projects) {
+                projectsList.innerHTML = ''; // Limpa a mensagem de carregamento
+                if (projects && projects.length > 0) {
+                    noProjectsMessage.style.display = 'none';
+                    projects.forEach(projeto => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `
+                            <div class="project-info">
+                                <strong>${projeto.descricao}</strong><br>
+                                Início: ${projeto.dataInicio} - Fim: ${projeto.dataFim}
+                            </div>
+                            <div class="project-actions">
+                                <button onclick="removerProjeto(${projeto.id})">Remover</button>
+                                <button onclick="editarProjeto(${projeto.id})">Editar</button>
+                            </div>
+                        `;
+                        projectsList.appendChild(listItem);
+                    });
+                } else {
+                    projectsList.innerHTML = ''; // Limpa qualquer item de projeto anterior
+                    noProjectsMessage.style.display = 'block';
+                }
+            }
+
+            // Função para buscar os projetos da API
+            function fetchProjects() {
+                fetch('/api/projetos') // Certifique-se de que a URL da sua API está correta
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Erro na requisição: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        loadingProjects.style.display = 'none';
+                        renderProjects(data);
+                    })
+                    .catch(error => {
+                        loadingProjects.style.display = 'none';
+                        projectsList.innerHTML = `<li style="color: red;">Erro ao carregar projetos: ${error.message}</li>`;
+                        console.error("Erro ao buscar projetos:", error);
+                    });
+            }
+
+            // Carregar os projetos ao carregar a página
+            fetchProjects();
+
             newProjectForm.addEventListener('submit', function(event) {
                 event.preventDefault();
                 const descricao = document.getElementById('descricao').value;
                 const dataInicio = document.getElementById('dataInicio').value;
                 const dataFim = document.getElementById('dataFim').value;
 
-                const newListItem = document.createElement('li');
-                newListItem.textContent = `${descricao} - Início: ${dataInicio} - Fim: ${dataFim}`;
-                projectsList.appendChild(newListItem);
+                const novoProjeto = {
+                    descricao: descricao,
+                    dataInicio: dataInicio,
+                    dataFim: dataFim
+                };
 
-                // Limpar o formulário após a "submissão"
-                newProjectForm.reset();
+                fetch('/api/projetos', { // Certifique-se de que a URL da sua API está correta
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(novoProjeto)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Erro ao adicionar projeto: ${response.status}`);
+                    }
+                    return response.json(); // Ou response.text() se o backend não retornar JSON no POST
+                })
+                .then(data => {
+                    console.log("Projeto adicionado com sucesso:", data);
+                    newProjectForm.reset();
+                    fetchProjects(); // Recarrega a lista de projetos após adicionar
+                    alert("Projeto adicionado com sucesso!");
+                })
+                .catch(error => {
+                    console.error("Erro ao adicionar projeto:", error);
+                    alert(`Erro ao adicionar projeto: ${error.message}`);
+                });
             });
 
-            // No cenário real, aqui você faria uma chamada GET para sua API
-            // para obter a lista de projetos e popular a lista 'projects'.
-            // Exemplo simulado:
-            // fetch('/api/projetos')
-            //   .then(response => response.json())
-            //   .then(data => {
-            //     data.forEach(projeto => {
-            //       const listItem = document.createElement('li');
-            //       listItem.textContent = `${projeto.descricao} - Início: ${projeto.dataInicio} - Fim: ${projeto.dataFim}`;
-            //       projectsList.appendChild(listItem);
-            //     });
-            //   });
+            window.removerProjeto = function(id) {
+                if (confirm(`Tem certeza que deseja remover o projeto com ID ${id}?`)) {
+                    fetch(`/api/projetos/${id}`, { // Certifique-se de que a URL da sua API está correta
+                        method: 'DELETE'
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Erro ao remover projeto: ${response.status}`);
+                        }
+                        console.log(`Projeto com ID ${id} removido com sucesso.`);
+                        fetchProjects(); // Recarrega a lista de projetos após remover
+                        alert(`Projeto com ID ${id} removido com sucesso.`);
+                    })
+                    .catch(error => {
+                        console.error("Erro ao remover projeto:", error);
+                        alert(`Erro ao remover projeto: ${error.message}`);
+                    });
+                }
+            };
+
+            window.editarProjeto = function(id) {
+                alert(`Funcionalidade de edição para o projeto com ID ${id} ainda não implementada.`);
+                // Aqui você implementaria a lógica para carregar os dados do projeto para edição
+                // e enviar as alterações para a API (provavelmente com um método PUT ou PATCH).
+            };
         });
     </script>
 </body>
