@@ -138,9 +138,8 @@
             const loadingProjects = document.getElementById('loading-projects');
             const addProjectStatus = document.getElementById('add-project-status');
 
-            // Função para exibir os projetos na lista
             function displayProjects(projects) {
-                projectList.innerHTML = ''; // Limpa a mensagem de carregamento
+                projectList.innerHTML = ''; 
                 if (projects && projects.length > 0) {
                     noProjectsMessage.style.display = 'none';
                     projects.forEach(project => {
@@ -159,9 +158,8 @@
                 }
             }
 
-            // Função para buscar a lista de projetos da API
             function fetchProjects() {
-                fetch('http://localhost:8081/projetos') // Substitua pela sua URL da API
+                fetch('http://localhost:8081/projetos') 
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`Erro na requisição: ${response.status}`);
@@ -178,10 +176,8 @@
                     });
             }
 
-            // Carregar os projetos ao carregar a página
             fetchProjects();
 
-            // Função para lidar com a submissão do formulário de novo projeto
             addProjectForm.addEventListener('submit', function(event) {
                 event.preventDefault();
 
@@ -189,7 +185,6 @@
                 const dataInicio = document.getElementById('dataInicio').value;
                 const dataFim = document.getElementById('dataFim').value;
 
-                // Simulação de validação frontend (você pode adicionar mais)
                 let isValid = true;
                 if (!descricao.trim()) {
                     document.getElementById('descricao-error').textContent = 'A descrição é obrigatória.';
@@ -217,7 +212,7 @@
                         dataFim: dataFim
                     };
 
-                    fetch('/api/projetos', { // Substitua pela sua URL da API
+                    fetch('/api/projetos', { 
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -228,12 +223,12 @@
                         if (!response.ok) {
                             throw new Error(`Erro ao adicionar projeto: ${response.status}`);
                         }
-                        return response.text(); // Ou response.json() se sua API retornar JSON
+                        return response.text(); 
                     })
                     .then(message => {
                         addProjectStatus.textContent = message || 'Projeto adicionado com sucesso!';
                         addProjectForm.reset();
-                        fetchProjects(); // Recarrega a lista de projetos
+                        fetchProjects(); 
                     })
                     .catch(error => {
                         addProjectStatus.textContent = `Erro ao adicionar projeto: ${error.message}`;
@@ -242,11 +237,8 @@
                 }
             });
 
-            // Função para buscar detalhes do projeto (apenas um protótipo)
             function buscarDetalhesProjeto(id) {
                 alert(`Funcionalidade de detalhes para o projeto com ID ${id} será implementada.`);
-                // Em uma implementação real, você faria uma chamada à API para buscar os detalhes
-                // do projeto, incluindo a lista de funcionários vinculados, e exibiria essas informações.
             }
         });
     </script>
