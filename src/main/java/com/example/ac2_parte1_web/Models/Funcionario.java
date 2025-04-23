@@ -3,6 +3,8 @@ package com.example.ac2_parte1_web.Models;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,6 +27,7 @@ public class Funcionario {
     private Setor setor;
 
     @ManyToMany(mappedBy = "funcionarios")
+    @JsonIgnore
     private List<Projeto> projetos = new ArrayList<>();
 
     public Funcionario() {

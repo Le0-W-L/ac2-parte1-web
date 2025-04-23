@@ -3,166 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Projetos</title>
+    <title>Sistema de Controle de Projetos</title>
     <style>
         body {
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 20px;
             background-color: #f4f4f4;
+            color: #333;
         }
 
         h1 {
-            color: #333;
             text-align: center;
-            margin-bottom: 20px;
+            color: #007bff;
+            margin-bottom: 30px;
         }
 
-        #project-list {
+        #project-list-container, #add-project-container {
             background-color: #fff;
-            padding: 15px;
-            border-radius: 5px;
+            padding: 20px;
+            border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
 
-        #project-list h2 {
+        h2 {
             color: #555;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
+            border-bottom: 2px solid #ccc;
             padding-bottom: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
-        #projects {
+        #project-list {
             list-style: none;
             padding: 0;
         }
 
-        #projects li {
+        #project-list li {
             padding: 10px 0;
-            border-bottom: 1px dashed #ddd;
+            border-bottom: 1px dashed #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        #projects li:last-child {
+        #project-list li:last-child {
             border-bottom: none;
         }
 
-        #add-project-form {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        .project-details {
+            flex-grow: 1;
         }
 
-        #add-project-form h2 {
-            color: #555;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
+        .project-details strong {
+            font-weight: bold;
         }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
+        #add-project-form label {
             display: block;
             margin-bottom: 5px;
             color: #777;
             font-size: 0.9em;
         }
 
-        .form-group input[type="text"],
-        .form-group input[type="date"] {
+        #add-project-form input[type="text"],
+        #add-project-form input[type="date"] {
             width: calc(100% - 12px);
             padding: 8px;
             border: 1px solid #ccc;
-            border-radius: 3px;
+            border-radius: 4px;
+            margin-bottom: 10px;
             font-size: 1em;
         }
 
-        button {
-            background-color: #007bff;
+        #add-project-form button {
+            background-color: #28a745;
             color: #fff;
             padding: 10px 15px;
             border: none;
-            border-radius: 3px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 1em;
         }
 
-        button:hover {
-            background-color: #0056b3;
+        #add-project-form button:hover {
+            background-color: #218838;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
     <h1>Sistema de Controle de Projetos</h1>
 
-    <div id="project-list">
+    <div id="project-list-container">
         <h2>Projetos Cadastrados</h2>
-        <ul id="projects">
-            <li>Projeto A - Início: 2023-01-15 - Fim: 2023-06-30</li>
-            <li>Projeto B - Início: 2023-03-01 - Fim: 2024-01-31</li>
-            <li>Projeto C - Início: 2024-05-10 - Fim: 2024-12-20</li>
+        <ul id="project-list">
+            <li id="loading-projects">Carregando projetos...</li>
         </ul>
+        <p id="no-projects" style="display: none;">Nenhum projeto cadastrado.</p>
     </div>
 
-    <div id="add-project-form">
+    <div id="add-project-container">
         <h2>Inserir Novo Projeto</h2>
-        <form id="new-project-form">
+        <form id="add-project-form">
             <div class="form-group">
                 <label for="descricao">Descrição:</label>
                 <input type="text" id="descricao" name="descricao" required>
+                <div class="error-message" id="descricao-error"></div>
             </div>
             <div class="form-group">
                 <label for="dataInicio">Data de Início:</label>
                 <input type="date" id="dataInicio" name="dataInicio" required>
+                <div class="error-message" id="dataInicio-error"></div>
             </div>
             <div class="form-group">
                 <label for="dataFim">Data de Fim:</label>
                 <input type="date" id="dataFim" name="dataFim" required>
+                <div class="error-message" id="dataFim-error"></div>
             </div>
             <button type="submit">Salvar Projeto</button>
         </form>
+        <div id="add-project-status" style="margin-top: 10px;"></div>
     </div>
 
     <script>
-        // Aqui você adicionaria o JavaScript para interagir com o backend
-        // para listar os projetos e enviar o formulário de novo projeto.
-
         document.addEventListener('DOMContentLoaded', () => {
-            const newProjectForm = document.getElementById('new-project-form');
-            const projectsList = document.getElementById('projects');
+            const projectList = document.getElementById('project-list');
+            const addProjectForm = document.getElementById('add-project-form');
+            const noProjectsMessage = document.getElementById('no-projects');
+            const loadingProjects = document.getElementById('loading-projects');
+            const addProjectStatus = document.getElementById('add-project-status');
 
-            // Função simulada para adicionar um projeto à lista (será substituída por chamada à API)
-            newProjectForm.addEventListener('submit', function(event) {
+            // Função para exibir os projetos na lista
+            function displayProjects(projects) {
+                projectList.innerHTML = ''; // Limpa a mensagem de carregamento
+                if (projects && projects.length > 0) {
+                    noProjectsMessage.style.display = 'none';
+                    projects.forEach(project => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `
+                            <div class="project-details">
+                                <strong>${project.descricao}</strong><br>
+                                Início: ${project.dataInicio} - Fim: ${project.dataFim}
+                            </div>
+                            <button onclick="buscarDetalhesProjeto(${project.id})">Detalhes</button>
+                        `;
+                        projectList.appendChild(listItem);
+                    });
+                } else {
+                    noProjectsMessage.style.display = 'block';
+                }
+            }
+
+            // Função para buscar a lista de projetos da API
+            function fetchProjects() {
+                fetch('http://localhost:8081/projetos') // Substitua pela sua URL da API
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Erro na requisição: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        loadingProjects.style.display = 'none';
+                        displayProjects(data);
+                    })
+                    .catch(error => {
+                        loadingProjects.textContent = `Erro ao carregar projetos: ${error.message}`;
+                        console.error("Erro ao buscar projetos:", error);
+                    });
+            }
+
+            // Carregar os projetos ao carregar a página
+            fetchProjects();
+
+            // Função para lidar com a submissão do formulário de novo projeto
+            addProjectForm.addEventListener('submit', function(event) {
                 event.preventDefault();
+
                 const descricao = document.getElementById('descricao').value;
                 const dataInicio = document.getElementById('dataInicio').value;
                 const dataFim = document.getElementById('dataFim').value;
 
-                const newListItem = document.createElement('li');
-                newListItem.textContent = `${descricao} - Início: ${dataInicio} - Fim: ${dataFim}`;
-                projectsList.appendChild(newListItem);
+                // Simulação de validação frontend (você pode adicionar mais)
+                let isValid = true;
+                if (!descricao.trim()) {
+                    document.getElementById('descricao-error').textContent = 'A descrição é obrigatória.';
+                    isValid = false;
+                } else {
+                    document.getElementById('descricao-error').textContent = '';
+                }
+                if (!dataInicio) {
+                    document.getElementById('dataInicio-error').textContent = 'A data de início é obrigatória.';
+                    isValid = false;
+                } else {
+                    document.getElementById('dataInicio-error').textContent = '';
+                }
+                if (!dataFim) {
+                    document.getElementById('dataFim-error').textContent = 'A data de fim é obrigatória.';
+                    isValid = false;
+                } else {
+                    document.getElementById('dataFim-error').textContent = '';
+                }
 
-                // Limpar o formulário após a "submissão"
-                newProjectForm.reset();
+                if (isValid) {
+                    const novoProjeto = {
+                        descricao: descricao,
+                        dataInicio: dataInicio,
+                        dataFim: dataFim
+                    };
+
+                    fetch('/api/projetos', { // Substitua pela sua URL da API
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(novoProjeto)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Erro ao adicionar projeto: ${response.status}`);
+                        }
+                        return response.text(); // Ou response.json() se sua API retornar JSON
+                    })
+                    .then(message => {
+                        addProjectStatus.textContent = message || 'Projeto adicionado com sucesso!';
+                        addProjectForm.reset();
+                        fetchProjects(); // Recarrega a lista de projetos
+                    })
+                    .catch(error => {
+                        addProjectStatus.textContent = `Erro ao adicionar projeto: ${error.message}`;
+                        console.error("Erro ao adicionar projeto:", error);
+                    });
+                }
             });
 
-            // No cenário real, aqui você faria uma chamada GET para sua API
-            // para obter a lista de projetos e popular a lista 'projects'.
-            // Exemplo simulado:
-            // fetch('/api/projetos')
-            //   .then(response => response.json())
-            //   .then(data => {
-            //     data.forEach(projeto => {
-            //       const listItem = document.createElement('li');
-            //       listItem.textContent = `${projeto.descricao} - Início: ${projeto.dataInicio} - Fim: ${projeto.dataFim}`;
-            //       projectsList.appendChild(listItem);
-            //     });
-            //   });
+            // Função para buscar detalhes do projeto (apenas um protótipo)
+            function buscarDetalhesProjeto(id) {
+                alert(`Funcionalidade de detalhes para o projeto com ID ${id} será implementada.`);
+                // Em uma implementação real, você faria uma chamada à API para buscar os detalhes
+                // do projeto, incluindo a lista de funcionários vinculados, e exibiria essas informações.
+            }
         });
     </script>
 </body>

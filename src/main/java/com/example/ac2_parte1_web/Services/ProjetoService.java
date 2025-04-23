@@ -1,5 +1,7 @@
 package com.example.ac2_parte1_web.Services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -7,6 +9,7 @@ import com.example.ac2_parte1_web.Models.Funcionario;
 import com.example.ac2_parte1_web.Models.Projeto;
 import com.example.ac2_parte1_web.Repositories.FuncionarioRepository;
 import com.example.ac2_parte1_web.Repositories.ProjetoRepository;
+import com.example.ac2_parte1_web.dtos.ProjetoDTO;
 
 @Service
 public class ProjetoService {
@@ -32,5 +35,16 @@ public class ProjetoService {
 
         projeto.getFuncionarios().add(funcionario);
         projetoRepository.save(projeto);
+    }
+
+    public List<ProjetoDTO> listarTodos() {
+        return projetoRepository.findAll()
+                .stream()
+                .map(projeto -> new ProjetoDTO(
+                    projeto.getId(),
+                    projeto.getDescricao(),
+                    projeto.getDataInicio(),
+                    projeto.getDataFim()))
+                .toList();
     }
 }
