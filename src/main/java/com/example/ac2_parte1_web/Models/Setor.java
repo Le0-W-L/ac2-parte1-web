@@ -44,16 +44,16 @@ public class Setor {
         this.nome = nome;
     }
 
-    @Override
-    public String toString() {
-        return "Setor [id=" + id + ", nome=" + nome + "]";
-    }
-
     public List<Funcionario> getFuncionarios() {
         return funcionarios;
     }
 
     public void setFuncionarios(List<Funcionario> funcionarios) {
         this.funcionarios = funcionarios;
+    }
+
+    @Override
+    public String toString() {
+        return "Setor [id=" + id + ", nome=" + nome + ", funcionarios=" + funcionarios + "]";
     }    
 }
